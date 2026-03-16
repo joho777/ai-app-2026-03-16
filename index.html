@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Architecture Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ========== DESIGN TOKENS ========== */
+:root {
+  --font-display: 'Cabinet Grotesk', 'Inter', sans-serif;
+  --font-body: 'Satoshi', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+  --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+  --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+  --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+  --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+  --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-full: 9999px;
+
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark theme (primary) */
+[data-theme="dark"] {
+  --color-bg: #0a0e17;
+  --color-surface: #111827;
+  --color-surface-2: #1a2332;
+  --color-surface-3: #1f2b3d;
+  --color-surface-glass: rgba(17, 24, 39, 0.7);
+  --color-border: rgba(56, 189, 248, 0.12);
+  --color-border-hover: rgba(56, 189, 248, 0.25);
+  --color-divider: rgba(148, 163, 184, 0.1);
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-text-faint: #475569;
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-primary-glow: rgba(56, 189, 248, 0.15);
+  --color-accent: #2dd4bf;
+  --color-accent-hover: #5eead4;
+  --color-accent-glow: rgba(45, 212, 191, 0.15);
+  --color-gradient-1: #38bdf8;
+  --color-gradient-2: #2dd4bf;
+  --color-gradient-3: #818cf8;
+  --color-tag-bg: rgba(56, 189, 248, 0.1);
+  --color-tag-text: #7dd3fc;
+  --color-card-highlight: rgba(56, 189, 248, 0.05);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 30px rgba(56, 189, 248, 0.1);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --color-bg: #f0f4f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f8fafc;
+  --color-surface-3: #f1f5f9;
+  --color-surface-glass: rgba(255, 255, 255, 0.7);
+  --color-border: rgba(15, 23, 42, 0.1);
+  --color-border-hover: rgba(15, 23, 42, 0.2);
+  --color-divider: rgba(15, 23, 42, 0.08);
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-faint: #94a3b8;
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+  --color-primary-glow: rgba(2, 132, 199, 0.1);
+  --color-accent: #0d9488;
+  --color-accent-hover: #0f766e;
+  --color-accent-glow: rgba(13, 148, 136, 0.1);
+  --color-gradient-1: #0284c7;
+  --color-gradient-2: #0d9488;
+  --color-gradient-3: #6366f1;
+  --color-tag-bg: rgba(2, 132, 199, 0.08);
+  --color-tag-text: #0284c7;
+  --color-card-highlight: rgba(2, 132, 199, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 30px rgba(2, 132, 199, 0.06);
+}
+
+/* ========== BASE RESET ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  overflow-x: hidden;
+}
+
+img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { color: var(--color-primary-hover); }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+p { text-wrap: pretty; max-width: 72ch; }
+
+::selection {
+  background: rgba(56, 189, 248, 0.25);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+}
+
+/* ========== BACKGROUND EFFECTS ========== */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--color-divider) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-divider) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  opacity: 0.5;
+}
+
+.bg-glow {
+  position: fixed;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 60vh;
+  background: radial-gradient(ellipse, var(--color-primary-glow) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bg-glow-2 {
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 50vw;
+  height: 50vh;
+  background: radial-gradient(ellipse, var(--color-accent-glow) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ========== LAYOUT ========== */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* ========== HEADER / NAV ========== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4) var(--space-6);
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.logo svg {
+  width: 36px;
+  height: 36px;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-gradient-1), var(--color-gradient-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-text span {
+  font-weight: 400;
+  -webkit-text-fill-color: var(--color-text-muted);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nav-btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: all var(--transition-interactive);
+  white-space: nowrap;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  color: var(--color-text);
+  background: var(--color-primary-glow);
+}
+
+.nav-btn.active {
+  color: var(--color-primary);
+  background: var(--color-tag-bg);
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  transition: all var(--transition-interactive);
+}
+
+.theme-toggle:hover {
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+}
+
+/* ========== VIEW SECTIONS ========== */
+.view-section {
+  display: none;
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-16);
+  animation: fadeIn 0.4s ease;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== HERO SECTION ========== */
+.hero {
+  text-align: center;
+  padding: var(--space-12) 0 var(--space-8);
+}
+
+.hero h1 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  margin-bottom: var(--space-4);
+  background: linear-gradient(135deg, var(--color-gradient-1), var(--color-gradient-2), var(--color-gradient-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto var(--space-8);
+}
+
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-gradient-1), var(--color-gradient-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========== FILTERS ========== */
+.filters-bar {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-8);
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filter-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.filter-select, .search-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  transition: all var(--transition-interactive);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.filter-select {
+  padding-right: var(--space-8);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+.filter-select:focus, .search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+  outline: none;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.chip-group {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  transition: all var(--transition-interactive);
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+}
+
+.chip.active {
+  background: var(--color-tag-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ========== CARD GALLERY ========== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-6);
+}
+
+.model-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.model-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--card-color-1, var(--color-gradient-1)), var(--card-color-2, var(--color-gradient-2)));
+  opacity: 0;
+  transition: opacity var(--transition-smooth);
+}
+
+.model-card:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.model-card:hover::before {
+  opacity: 1;
+}
+
+.model-card.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-glow), var(--shadow-lg);
+}
+
+.model-card.selected::before {
+  opacity: 1;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.card-title-group {
+  flex: 1;
+}
+
+.card-model-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.card-company {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.card-year {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-tag-bg);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+}
+
+.card-params {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+  background: linear-gradient(135deg, var(--color-gradient-1), var(--color-gradient-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-params-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  margin-bottom: var(--space-4);
+}
+
+.card-arch-type {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-accent);
+  background: var(--color-accent-glow);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-3);
+}
+
+.card-innovation {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+}
+
+.card-tags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.card-tag {
+  font-size: var(--text-xs);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+.card-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-divider);
+}
+
+.card-action-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-align: center;
+  transition: all var(--transition-interactive);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.card-action-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-glow);
+}
+
+.card-action-btn.compare-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+/* ========== ARCHITECTURE DIAGRAM MODAL ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  place-items: center;
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+
+.modal-overlay.active {
+  display: grid;
+}
+
+.modal-content {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--space-8);
+  position: relative;
+  animation: modalSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  transition: all var(--transition-interactive);
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+
+.modal-header {
+  margin-bottom: var(--space-6);
+}
+
+.modal-model-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  margin-bottom: var(--space-2);
+}
+
+.modal-meta {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.modal-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.modal-section {
+  margin-bottom: var(--space-6);
+}
+
+.modal-section h3 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--color-primary);
+}
+
+.modal-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.modal-detail {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+}
+
+.modal-detail-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
+.modal-detail-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Architecture Diagram */
+.arch-diagram {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.arch-diagram svg {
+  margin: 0 auto;
+}
+
+.arch-block {
+  transition: all var(--transition-interactive);
+}
+
+.arch-block:hover {
+  filter: brightness(1.15);
+}
+
+/* ========== COMPARE VIEW ========== */
+.compare-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.compare-header h2 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.compare-header p {
+  color: var(--color-text-muted);
+  margin: 0 auto;
+}
+
+.compare-selection-bar {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-8);
+}
+
+.compare-slot {
+  width: 180px;
+  height: 50px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-xl);
+  display: grid;
+  place-items: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+  transition: all var(--transition-interactive);
+}
+
+.compare-slot.filled {
+  border-style: solid;
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.compare-slot.filled:hover {
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.compare-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.compare-col {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+}
+
+.compare-col-header {
+  text-align: center;
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.compare-col-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.compare-col-company {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.compare-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.compare-row:last-child {
+  border-bottom: none;
+}
+
+.compare-row-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.compare-row-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: right;
+}
+
+.compare-empty {
+  text-align: center;
+  padding: var(--space-16) 0;
+  color: var(--color-text-faint);
+}
+
+.compare-empty-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.3;
+}
+
+/* ========== TIMELINE VIEW ========== */
+.timeline-container {
+  position: relative;
+  padding: var(--space-8) 0;
+}
+
+.timeline-header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.timeline-header h2 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.timeline-header p {
+  color: var(--color-text-muted);
+  margin: 0 auto;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 120px;
+  bottom: 40px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-accent), var(--color-gradient-3));
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+.timeline-items {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  position: relative;
+}
+
+.timeline-item:nth-child(odd) {
+  flex-direction: row;
+}
+
+.timeline-item:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+.timeline-item:nth-child(odd) .timeline-card {
+  text-align: right;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-bg);
+  box-shadow: 0 0 0 2px var(--color-primary), 0 0 12px var(--color-primary-glow);
+  z-index: 2;
+  cursor: pointer;
+  transition: all var(--transition-interactive);
+}
+
+.timeline-dot:hover {
+  transform: translateX(-50%) scale(1.3);
+  box-shadow: 0 0 0 3px var(--color-primary), 0 0 20px rgba(56, 189, 248, 0.4);
+}
+
+.timeline-card {
+  flex: 1;
+  max-width: calc(50% - 40px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+}
+
+.timeline-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.timeline-card-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.timeline-card-meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.timeline-card-innovation {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.timeline-year-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  flex: 1;
+  max-width: calc(50% - 40px);
+  padding: 0 var(--space-4);
+}
+
+.timeline-item:nth-child(odd) .timeline-year-label {
+  text-align: left;
+}
+
+.timeline-item:nth-child(even) .timeline-year-label {
+  text-align: right;
+}
+
+/* ========== FOOTER ========== */
+.site-footer {
+  border-top: 1px solid var(--color-divider);
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-text {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.footer-text a {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-text a:hover {
+  color: var(--color-primary);
+}
+
+/* ========== MOBILE RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .header-nav { display: none; }
+
+  .mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--color-surface-glass);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-2) var(--space-4);
+    justify-content: space-around;
+  }
+
+  .mobile-nav .nav-btn {
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2);
+    font-size: 10px;
+  }
+
+  .mobile-nav .nav-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 { font-size: clamp(1.5rem, 1rem + 3vw, 2.5rem); }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    flex-wrap: wrap;
+  }
+
+  .timeline-line { left: 20px; }
+  .timeline-item,
+  .timeline-item:nth-child(odd),
+  .timeline-item:nth-child(even) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 50px;
+  }
+
+  .timeline-dot {
+    left: 20px;
+    top: 0;
+  }
+
+  .timeline-card,
+  .timeline-year-label {
+    max-width: 100%;
+    text-align: left !important;
+  }
+
+  .timeline-year-label {
+    order: -1;
+  }
+
+  .compare-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    padding: var(--space-5);
+  }
+
+  body {
+    padding-bottom: 70px;
+  }
+
+  .stats-row { gap: var(--space-4); }
+}
+
+.mobile-nav { display: none; }
+
+@media (min-width: 769px) {
+  .mobile-nav { display: none !important; }
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-faint); }
+
+/* ========== TRANSITIONS FOR CARDS ========== */
+.card-enter {
+  animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* no results state */
+.no-results {
+  text-align: center;
+  padding: var(--space-16) 0;
+  color: var(--color-text-faint);
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.3;
+}
+</style>
+</head>
+<body>
+  <!-- Background effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#" class="logo" onclick="switchView('gallery'); return false;">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="LLM Architecture Explorer Logo">
+          <rect x="2" y="2" width="32" height="32" rx="8" stroke="url(#logoGrad)" stroke-width="2.5"/>
+          <path d="M10 12h16M10 18h16M10 24h16" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+          <circle cx="12" cy="12" r="3" fill="url(#logoGrad)"/>
+          <circle cx="24" cy="18" r="3" fill="url(#logoGrad)" opacity="0.7"/>
+          <circle cx="14" cy="24" r="3" fill="url(#logoGrad)" opacity="0.5"/>
+          <path d="M12 12L24 18M24 18L14 24" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+              <stop stop-color="#38bdf8"/>
+              <stop offset="1" stop-color="#2dd4bf"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-text">LLM Explorer</span>
+      </a>
+      <nav class="header-nav" aria-label="Main Navigation">
+        <button class="nav-btn active" data-view="gallery" onclick="switchView('gallery')">Gallery</button>
+        <button class="nav-btn" data-view="compare" onclick="switchView('compare')">Compare</button>
+        <button class="nav-btn" data-view="timeline" onclick="switchView('timeline')">Timeline</button>
+        <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Mobile bottom nav -->
+  <nav class="mobile-nav" aria-label="Mobile Navigation">
+    <button class="nav-btn active" data-view="gallery" onclick="switchView('gallery')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Gallery
+    </button>
+    <button class="nav-btn" data-view="compare" onclick="switchView('compare')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Compare
+    </button>
+    <button class="nav-btn" data-view="timeline" onclick="switchView('timeline')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Timeline
+    </button>
+    <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme" onclick="toggleTheme()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </nav>
+
+  <div class="app-container">
+
+    <!-- ==================== GALLERY VIEW ==================== -->
+    <section id="view-gallery" class="view-section active">
+      <div class="hero">
+        <h1>LLM Architecture Explorer</h1>
+        <p>An interactive gallery of the most influential large language model architectures, from GPT-2 to the latest innovations.</p>
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-value">12</div>
+            <div class="stat-label">Models</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">2018–2024</div>
+            <div class="stat-label">Timeline</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Architecture Families</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search models..." oninput="filterCards()">
+        <div class="filter-group">
+          <span class="filter-label">Sort:</span>
+          <select class="filter-select" id="sortSelect" onchange="filterCards()">
+            <option value="year-asc">Year (oldest)</option>
+            <option value="year-desc">Year (newest)</option>
+            <option value="params-asc">Params (smallest)</option>
+            <option value="params-desc">Params (largest)</option>
+            <option value="name">Name (A-Z)</option>
+          </select>
+        </div>
+        <div class="chip-group" id="familyChips">
+          <button class="chip active" data-family="all" onclick="setFamilyFilter('all')">All</button>
+          <button class="chip" data-family="decoder-only" onclick="setFamilyFilter('decoder-only')">Decoder-Only</button>
+          <button class="chip" data-family="encoder-only" onclick="setFamilyFilter('encoder-only')">Encoder-Only</button>
+          <button class="chip" data-family="encoder-decoder" onclick="setFamilyFilter('encoder-decoder')">Encoder-Decoder</button>
+          <button class="chip" data-family="ssm" onclick="setFamilyFilter('ssm')">SSM</button>
+        </div>
+      </div>
+
+      <div class="card-grid" id="cardGrid"></div>
+      <div class="no-results" id="noResults" style="display:none;">
+        <div class="no-results-icon">&#128270;</div>
+        <p>No models match your filters. Try adjusting your search.</p>
+      </div>
+    </section>
+
+    <!-- ==================== COMPARE VIEW ==================== -->
+    <section id="view-compare" class="view-section">
+      <div class="compare-header">
+        <h2>Compare Architectures</h2>
+        <p>Select 2-3 models from the gallery to compare them side by side.</p>
+      </div>
+      <div class="compare-selection-bar" id="compareSlots">
+        <div class="compare-slot" id="slot-0">Slot 1</div>
+        <div class="compare-slot" id="slot-1">Slot 2</div>
+        <div class="compare-slot" id="slot-2">Slot 3</div>
+      </div>
+      <div id="compareContent"></div>
+    </section>
+
+    <!-- ==================== TIMELINE VIEW ==================== -->
+    <section id="view-timeline" class="view-section">
+      <div class="timeline-header">
+        <h2>Architecture Evolution</h2>
+        <p>Trace the chronological development of LLM architectures and their key innovations.</p>
+      </div>
+      <div class="timeline-container" id="timelineContainer"></div>
+    </section>
+
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p class="footer-text">
+      LLM Architecture Explorer &mdash; Inspired by <a href="https://sebastianraschka.com/llm-architecture-gallery/" target="_blank" rel="noopener noreferrer">Sebastian Raschka's LLM Architecture Gallery</a>
+      &bull;
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </p>
+  </footer>
+
+<script>
+// ==================== DATA ====================
+const models = [
+  {
+    id: 'gpt2',
+    name: 'GPT-2',
+    company: 'OpenAI',
+    year: 2019,
+    params: '1.5B',
+    paramsNum: 1.5,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: 'Pre-Norm (LayerNorm before attention). Demonstrated that scaling a decoder-only transformer yields emergent text generation abilities.',
+    tags: ['Pre-Norm', 'Learned Pos. Embeddings', 'Causal Masking'],
+    color1: '#10b981', color2: '#34d399',
+    details: {
+      layers: '48',
+      heads: '25',
+      dModel: '1600',
+      context: '1,024 tokens',
+      vocab: '50,257 (BPE)',
+      normalization: 'Pre-LayerNorm',
+      activation: 'GELU',
+      posEncoding: 'Learned absolute'
+    },
+    components: ['Token Embedding', 'Positional Embedding', 'LayerNorm', 'Multi-Head Self-Attention (causal)', 'Residual Connection', 'LayerNorm', 'Feed-Forward Network (GELU)', 'Residual Connection', '×48 Transformer Blocks', 'Final LayerNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'bert',
+    name: 'BERT',
+    company: 'Google',
+    year: 2018,
+    params: '340M',
+    paramsNum: 0.34,
+    family: 'encoder-only',
+    familyLabel: 'Encoder-Only Transformer',
+    innovation: 'Bidirectional pre-training with Masked Language Modeling (MLM) and Next Sentence Prediction. Revolutionized NLU benchmarks.',
+    tags: ['MLM', 'NSP', 'Bidirectional Attention', 'WordPiece'],
+    color1: '#f59e0b', color2: '#fbbf24',
+    details: {
+      layers: '24 (Large)',
+      heads: '16',
+      dModel: '1024',
+      context: '512 tokens',
+      vocab: '30,522 (WordPiece)',
+      normalization: 'Post-LayerNorm',
+      activation: 'GELU',
+      posEncoding: 'Learned absolute'
+    },
+    components: ['Token Embedding', 'Segment Embedding', 'Positional Embedding', 'LayerNorm', 'Multi-Head Self-Attention (bidirectional)', 'Residual + LayerNorm', 'Feed-Forward Network (GELU)', 'Residual + LayerNorm', '×24 Transformer Blocks', 'MLM Head / Classifier']
+  },
+  {
+    id: 'gpt3',
+    name: 'GPT-3',
+    company: 'OpenAI',
+    year: 2020,
+    params: '175B',
+    paramsNum: 175,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: 'Massive scale-up demonstrating few-shot in-context learning without fine-tuning. Alternating dense and sparse attention layers.',
+    tags: ['Few-Shot Learning', 'Alternating Attention', 'In-Context Learning'],
+    color1: '#8b5cf6', color2: '#a78bfa',
+    details: {
+      layers: '96',
+      heads: '96',
+      dModel: '12,288',
+      context: '2,048 tokens',
+      vocab: '50,257 (BPE)',
+      normalization: 'Pre-LayerNorm',
+      activation: 'GELU',
+      posEncoding: 'Learned absolute'
+    },
+    components: ['Token Embedding', 'Positional Embedding', 'LayerNorm', 'Multi-Head Self-Attention (causal, alternating dense/sparse)', 'Residual Connection', 'LayerNorm', 'Feed-Forward Network (GELU)', 'Residual Connection', '×96 Transformer Blocks', 'Final LayerNorm', 'Linear + Softmax']
+  },
+  {
+    id: 't5',
+    name: 'T5',
+    company: 'Google',
+    year: 2019,
+    params: '11B',
+    paramsNum: 11,
+    family: 'encoder-decoder',
+    familyLabel: 'Encoder-Decoder Transformer',
+    innovation: 'Unified text-to-text framework treating every NLP task as text generation. Relative position biases instead of learned embeddings.',
+    tags: ['Text-to-Text', 'Relative Pos. Bias', 'Span Corruption', 'Encoder-Decoder'],
+    color1: '#06b6d4', color2: '#22d3ee',
+    details: {
+      layers: '24 enc + 24 dec',
+      heads: '128',
+      dModel: '1024',
+      context: '512 tokens',
+      vocab: '32,000 (SentencePiece)',
+      normalization: 'Pre-RMSNorm',
+      activation: 'ReLU',
+      posEncoding: 'Relative position bias'
+    },
+    components: ['Token Embedding', 'Relative Position Bias', 'Encoder: Self-Attention', 'Encoder: FFN', '×24 Encoder Blocks', 'Cross-Attention', 'Decoder: Causal Self-Attention', 'Decoder: Cross-Attention', 'Decoder: FFN', '×24 Decoder Blocks', 'Linear + Softmax']
+  },
+  {
+    id: 'gpt4',
+    name: 'GPT-4',
+    company: 'OpenAI',
+    year: 2023,
+    params: '~1.8T (MoE)',
+    paramsNum: 1800,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer (MoE)',
+    innovation: 'Mixture-of-Experts architecture with multimodal (text + vision) capabilities. Reportedly 8×220B expert routing.',
+    tags: ['Mixture of Experts', 'Multimodal', 'RLHF', 'Vision Encoder'],
+    color1: '#ec4899', color2: '#f472b6',
+    details: {
+      layers: '~120 (estimated)',
+      heads: '~96 (estimated)',
+      dModel: '~12,288 (est.)',
+      context: '8,192–128K tokens',
+      vocab: '~100K (BPE)',
+      normalization: 'Pre-RMSNorm (est.)',
+      activation: 'SwiGLU (estimated)',
+      posEncoding: 'Unknown (likely RoPE)'
+    },
+    components: ['Token Embedding', 'Vision Encoder (ViT)', 'Cross-modal Projection', 'RMSNorm', 'Multi-Head Self-Attention (causal)', 'Residual Connection', 'RMSNorm', 'MoE Gate → Top-K Expert FFNs', 'Residual Connection', '×~120 Transformer Blocks', 'Final RMSNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'llama',
+    name: 'LLaMA',
+    company: 'Meta',
+    year: 2023,
+    params: '65B',
+    paramsNum: 65,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: 'RMSNorm, SwiGLU activations, Rotary Position Embeddings (RoPE). Open-source model matching proprietary performance at smaller scale.',
+    tags: ['RoPE', 'SwiGLU', 'RMSNorm', 'Open Source', 'GQA (LLaMA 2)'],
+    color1: '#3b82f6', color2: '#60a5fa',
+    details: {
+      layers: '80',
+      heads: '64',
+      dModel: '8192',
+      context: '2,048 tokens (v1)',
+      vocab: '32,000 (SentencePiece)',
+      normalization: 'Pre-RMSNorm',
+      activation: 'SwiGLU',
+      posEncoding: 'RoPE'
+    },
+    components: ['Token Embedding', 'RMSNorm', 'Multi-Head Self-Attention (causal + RoPE)', 'Residual Connection', 'RMSNorm', 'SwiGLU Feed-Forward Network', 'Residual Connection', '×80 Transformer Blocks', 'Final RMSNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'mistral',
+    name: 'Mistral 7B',
+    company: 'Mistral AI',
+    year: 2023,
+    params: '7.3B',
+    paramsNum: 7.3,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: 'Sliding Window Attention (4096 token window) with Grouped-Query Attention (GQA). Outperformed LLaMA 2 13B at half the size.',
+    tags: ['Sliding Window Attn', 'GQA', 'RoPE', 'SwiGLU'],
+    color1: '#f97316', color2: '#fb923c',
+    details: {
+      layers: '32',
+      heads: '32 (8 KV)',
+      dModel: '4096',
+      context: '8,192 tokens (SWA 4096)',
+      vocab: '32,000 (BPE)',
+      normalization: 'Pre-RMSNorm',
+      activation: 'SwiGLU',
+      posEncoding: 'RoPE'
+    },
+    components: ['Token Embedding', 'RMSNorm', 'Grouped-Query Attention (causal + SWA + RoPE)', 'Residual Connection', 'RMSNorm', 'SwiGLU Feed-Forward Network', 'Residual Connection', '×32 Transformer Blocks', 'Final RMSNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'gemini',
+    name: 'Gemini',
+    company: 'Google DeepMind',
+    year: 2023,
+    params: '~1T+ (Ultra)',
+    paramsNum: 1000,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer (Multimodal)',
+    innovation: 'Natively multimodal (text, image, audio, video) from the ground up. Multi-query attention with 32K context at launch.',
+    tags: ['Natively Multimodal', 'Multi-Query Attn', 'RoPE', 'Interleaved Modalities'],
+    color1: '#6366f1', color2: '#818cf8',
+    details: {
+      layers: 'Unknown',
+      heads: 'Multi-Query Attn',
+      dModel: 'Unknown',
+      context: '32,768 tokens (1M with Pro)',
+      vocab: 'SentencePiece',
+      normalization: 'Pre-RMSNorm',
+      activation: 'GeGLU (likely)',
+      posEncoding: 'RoPE'
+    },
+    components: ['Multimodal Tokenizer', 'Image/Audio/Video Encoder', 'Cross-modal Embedding', 'RMSNorm', 'Multi-Query Attention (causal + RoPE)', 'Residual Connection', 'RMSNorm', 'Feed-Forward Network (GeGLU)', 'Residual Connection', '×N Transformer Blocks', 'Final RMSNorm', 'Task-Specific Heads']
+  },
+  {
+    id: 'claude',
+    name: 'Claude',
+    company: 'Anthropic',
+    year: 2023,
+    params: '~130B (est.)',
+    paramsNum: 130,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: 'Constitutional AI (RLAIF) alignment. Trained with self-critique and revision. Known for long-context (100K–200K tokens) capabilities.',
+    tags: ['Constitutional AI', 'RLAIF', 'Long Context', 'Harmlessness Training'],
+    color1: '#d946ef', color2: '#e879f9',
+    details: {
+      layers: 'Unknown',
+      heads: 'Unknown',
+      dModel: 'Unknown',
+      context: '100K–200K tokens',
+      vocab: 'BPE (custom)',
+      normalization: 'Pre-RMSNorm (likely)',
+      activation: 'SwiGLU (likely)',
+      posEncoding: 'RoPE (likely)'
+    },
+    components: ['Token Embedding', 'RMSNorm', 'Multi-Head Self-Attention (causal + RoPE)', 'Residual Connection', 'RMSNorm', 'SwiGLU Feed-Forward Network', 'Residual Connection', '×N Transformer Blocks', 'Constitutional AI Alignment Layer', 'Final RMSNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'palm',
+    name: 'PaLM',
+    company: 'Google',
+    year: 2022,
+    params: '540B',
+    paramsNum: 540,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: 'Parallel attention + FFN computation (not sequential). SwiGLU activation. Multi-query attention. Trained on 6144 TPUv4 chips via Pathways.',
+    tags: ['Parallel Attn+FFN', 'SwiGLU', 'Multi-Query Attn', 'Pathways'],
+    color1: '#14b8a6', color2: '#2dd4bf',
+    details: {
+      layers: '118',
+      heads: '48',
+      dModel: '18,432',
+      context: '2,048 tokens',
+      vocab: '256,000 (SentencePiece)',
+      normalization: 'Pre-LayerNorm',
+      activation: 'SwiGLU',
+      posEncoding: 'RoPE'
+    },
+    components: ['Token Embedding', 'LayerNorm', 'Parallel { Multi-Query Attention + SwiGLU FFN }', 'Residual Connection', '×118 Transformer Blocks', 'Final LayerNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'phi',
+    name: 'Phi-2',
+    company: 'Microsoft',
+    year: 2023,
+    params: '2.7B',
+    paramsNum: 2.7,
+    family: 'decoder-only',
+    familyLabel: 'Decoder-Only Transformer',
+    innovation: '"Textbook-quality" synthetic training data. Demonstrated that data quality can rival massive parameter counts. Flash Attention 2.',
+    tags: ['Synthetic Data', 'Flash Attention 2', 'RoPE', 'Data Quality > Scale'],
+    color1: '#0ea5e9', color2: '#38bdf8',
+    details: {
+      layers: '32',
+      heads: '32',
+      dModel: '2560',
+      context: '2,048 tokens',
+      vocab: '51,200 (BPE)',
+      normalization: 'Pre-LayerNorm',
+      activation: 'GELU',
+      posEncoding: 'RoPE'
+    },
+    components: ['Token Embedding', 'LayerNorm', 'Multi-Head Self-Attention (causal + RoPE + Flash Attn 2)', 'Residual Connection', 'LayerNorm', 'Feed-Forward Network (GELU)', 'Residual Connection', '×32 Transformer Blocks', 'Final LayerNorm', 'Linear + Softmax']
+  },
+  {
+    id: 'mamba',
+    name: 'Mamba',
+    company: 'Albert Gu & Tri Dao',
+    year: 2023,
+    params: '2.8B',
+    paramsNum: 2.8,
+    family: 'ssm',
+    familyLabel: 'Selective State Space Model (SSM)',
+    innovation: 'Completely attention-free architecture using selective structured state spaces. Linear-time sequence processing with hardware-aware parallel scan.',
+    tags: ['No Attention', 'Selective SSM', 'Linear Scaling', 'Hardware-Aware'],
+    color1: '#ef4444', color2: '#f87171',
+    details: {
+      layers: '64',
+      heads: 'N/A (no attention)',
+      dModel: '2560',
+      context: 'Unlimited (linear)',
+      vocab: '50,280',
+      normalization: 'RMSNorm',
+      activation: 'SiLU',
+      posEncoding: 'None (implicit in SSM)'
+    },
+    components: ['Token Embedding', 'RMSNorm', 'Linear Projection', 'Conv1D', 'Selective SSM (S6)', 'SiLU Activation', 'Gated Output', 'Residual Connection', '×64 Mamba Blocks', 'Final RMSNorm', 'Linear + Softmax']
+  }
+];
+
+// ==================== STATE ====================
+let currentView = 'gallery';
+let currentFamily = 'all';
+let compareList = [];
+const MAX_COMPARE = 3;
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  updateThemeIcons(next);
+}
+
+function updateThemeIcons(theme) {
+  const toggles = document.querySelectorAll('[data-theme-toggle]');
+  const sunIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  const moonIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  toggles.forEach(t => {
+    t.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
+  });
+}
+
+// Init theme
+(function() {
+  const html = document.documentElement;
+  const t = document.querySelectorAll('[data-theme-toggle]');
+  t.forEach(btn => btn.addEventListener('click', toggleTheme));
+  updateThemeIcons(html.getAttribute('data-theme') || 'dark');
+})();
+
+// ==================== NAVIGATION ====================
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.nav-btn[data-view]').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  if (view === 'timeline') renderTimeline();
+  if (view === 'compare') renderCompare();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==================== CARD GALLERY ====================
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = models.filter(m => {
+    const matchFamily = currentFamily === 'all' || m.family === currentFamily;
+    const matchSearch = !search ||
+      m.name.toLowerCase().includes(search) ||
+      m.company.toLowerCase().includes(search) ||
+      m.innovation.toLowerCase().includes(search) ||
+      m.tags.some(t => t.toLowerCase().includes(search));
+    return matchFamily && matchSearch;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    switch(sort) {
+      case 'year-asc': return a.year - b.year;
+      case 'year-desc': return b.year - a.year;
+      case 'params-asc': return a.paramsNum - b.paramsNum;
+      case 'params-desc': return b.paramsNum - a.paramsNum;
+      case 'name': return a.name.localeCompare(b.name);
+      default: return 0;
+    }
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    document.getElementById('noResults').style.display = 'block';
+    return;
+  }
+  document.getElementById('noResults').style.display = 'none';
+
+  grid.innerHTML = filtered.map((m, i) => {
+    const isCompared = compareList.includes(m.id);
+    return `
+    <div class="model-card card-enter ${isCompared ? 'selected' : ''}" style="--card-color-1:${m.color1};--card-color-2:${m.color2};animation-delay:${i*60}ms" onclick="openModal('${m.id}')">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-model-name">${m.name}</div>
+          <div class="card-company">${m.company}</div>
+        </div>
+        <span class="card-year">${m.year}</span>
+      </div>
+      <div class="card-params">${m.params}</div>
+      <div class="card-params-label">Parameters</div>
+      <div class="card-arch-type">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        ${m.familyLabel}
+      </div>
+      <div class="card-innovation">${m.innovation}</div>
+      <div class="card-tags">
+        ${m.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+      </div>
+      <div class="card-actions">
+        <button class="card-action-btn" onclick="event.stopPropagation();openModal('${m.id}')">View Architecture</button>
+        <button class="card-action-btn compare-btn ${isCompared ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare('${m.id}')">
+          ${isCompared ? '✓ Comparing' : '+ Compare'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCards() { renderCards(); }
+function setFamilyFilter(family) {
+  currentFamily = family;
+  document.querySelectorAll('#familyChips .chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.family === family);
+  });
+  renderCards();
+}
+
+// ==================== COMPARE ====================
+function toggleCompare(id) {
+  const idx = compareList.indexOf(id);
+  if (idx > -1) {
+    compareList.splice(idx, 1);
+  } else if (compareList.length < MAX_COMPARE) {
+    compareList.push(id);
+  }
+  renderCards();
+  renderCompareSlots();
+  if (currentView === 'compare') renderCompare();
+}
+
+function renderCompareSlots() {
+  for (let i = 0; i < MAX_COMPARE; i++) {
+    const slot = document.getElementById('slot-' + i);
+    if (compareList[i]) {
+      const m = models.find(x => x.id === compareList[i]);
+      slot.className = 'compare-slot filled';
+      slot.textContent = m.name;
+      slot.onclick = () => { toggleCompare(m.id); };
+    } else {
+      slot.className = 'compare-slot';
+      slot.textContent = 'Slot ' + (i + 1);
+      slot.onclick = null;
+    }
+  }
+}
+
+function renderCompare() {
+  renderCompareSlots();
+  const container = document.getElementById('compareContent');
+  if (compareList.length < 2) {
+    container.innerHTML = `
+      <div class="compare-empty">
+        <div class="compare-empty-icon">&#9878;</div>
+        <p>Select at least 2 models to compare. Click "Compare" on model cards in the Gallery view.</p>
+      </div>`;
+    return;
+  }
+
+  const selected = compareList.map(id => models.find(m => m.id === id));
+  const fields = [
+    ['Year', m => m.year],
+    ['Parameters', m => m.params],
+    ['Family', m => m.familyLabel],
+    ['Layers', m => m.details.layers],
+    ['Attention Heads', m => m.details.heads],
+    ['Model Dim (d)', m => m.details.dModel],
+    ['Context Length', m => m.details.context],
+    ['Vocabulary', m => m.details.vocab],
+    ['Normalization', m => m.details.normalization],
+    ['Activation', m => m.details.activation],
+    ['Position Encoding', m => m.details.posEncoding],
+  ];
+
+  container.innerHTML = `
+    <div class="compare-columns">
+      ${selected.map(m => `
+        <div class="compare-col">
+          <div class="compare-col-header">
+            <div class="compare-col-name">${m.name}</div>
+            <div class="compare-col-company">${m.company} &bull; ${m.year}</div>
+          </div>
+          ${fields.map(([label, fn]) => `
+            <div class="compare-row">
+              <span class="compare-row-label">${label}</span>
+              <span class="compare-row-value">${fn(m)}</span>
+            </div>
+          `).join('')}
+          <div style="margin-top:var(--space-4);">
+            <div class="compare-row-label" style="margin-bottom:var(--space-2);">Key Innovation</div>
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.5;">${m.innovation}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+// ==================== ARCHITECTURE DIAGRAM ====================
+function generateArchDiagram(model) {
+  const blockH = 42;
+  const blockW = 280;
+  const gap = 8;
+  const startY = 30;
+  const comps = model.components;
+  const totalH = startY + comps.length * (blockH + gap) + 40;
+  const svgW = 340;
+
+  const colors = {
+    'Embedding': '#1e3a5f',
+    'Norm': '#1a3a2a',
+    'Attention': '#3a1a5f',
+    'FFN': '#5f3a1a',
+    'Feed-Forward': '#5f3a1a',
+    'Residual': '#1a2a3a',
+    'Linear': '#2a1a3a',
+    'Softmax': '#2a1a3a',
+    'Block': '#1a3a4f',
+    'SSM': '#5f1a2a',
+    'Selective': '#5f1a2a',
+    'Conv': '#3a4f1a',
+    'Gate': '#3a1a4f',
+    'MoE': '#4f2a1a',
+    'Vision': '#1a4f4f',
+    'Multimodal': '#1a4f4f',
+    'Cross': '#4f1a3a',
+    'Constitutional': '#4f3a1a',
+    'Encoder': '#1a3a5f',
+    'Decoder': '#3a1a5f',
+    'Parallel': '#2a3a1a',
+    'default': '#1a2a3f',
+    'SiLU': '#3a4f1a',
+    'SwiGLU': '#5f3a1a',
+    'Projection': '#1a4f4f',
+    'Task': '#2a3a4f',
+    'Classifier': '#2a3a4f',
+    'MLM': '#4f2a3a',
+    'Segment': '#1a3a5f',
+    'Relative': '#1a3a5f',
+    'Tokenizer': '#1a4f4f',
+    'Image': '#1a4f4f',
+    'Audio': '#1a4f4f',
+    'Grouped': '#3a1a5f',
+    'Span': '#4f3a1a'
+  };
+
+  const lightColors = {
+    'Embedding': '#38bdf8',
+    'Norm': '#2dd4bf',
+    'Attention': '#818cf8',
+    'FFN': '#fb923c',
+    'Feed-Forward': '#fb923c',
+    'Residual': '#94a3b8',
+    'Linear': '#a78bfa',
+    'Softmax': '#a78bfa',
+    'Block': '#38bdf8',
+    'SSM': '#f87171',
+    'Selective': '#f87171',
+    'Conv': '#a3e635',
+    'Gate': '#c084fc',
+    'MoE': '#fb923c',
+    'Vision': '#2dd4bf',
+    'Multimodal': '#2dd4bf',
+    'Cross': '#f472b6',
+    'Constitutional': '#fbbf24',
+    'Encoder': '#38bdf8',
+    'Decoder': '#818cf8',
+    'Parallel': '#a3e635',
+    'default': '#64748b',
+    'SiLU': '#a3e635',
+    'SwiGLU': '#fb923c',
+    'Projection': '#2dd4bf',
+    'Task': '#38bdf8',
+    'Classifier': '#38bdf8',
+    'MLM': '#f472b6',
+    'Segment': '#38bdf8',
+    'Relative': '#38bdf8',
+    'Tokenizer': '#2dd4bf',
+    'Image': '#2dd4bf',
+    'Audio': '#2dd4bf',
+    'Grouped': '#818cf8',
+    'Span': '#fbbf24'
+  };
+
+  function getColor(comp, palette) {
+    for (const key of Object.keys(palette)) {
+      if (key !== 'default' && comp.includes(key)) return palette[key];
+    }
+    return palette['default'];
+  }
+
+  let blocks = comps.map((comp, i) => {
+    const y = startY + i * (blockH + gap);
+    const bgColor = getColor(comp, colors);
+    const borderColor = getColor(comp, lightColors);
+    const isRepeat = comp.startsWith('×');
+    const rx = isRepeat ? 20 : 8;
+    const dashArr = isRepeat ? 'stroke-dasharray="6 3"' : '';
+    const fontS = isRepeat ? 12 : 11;
+    const fontW = isRepeat ? 600 : 500;
+
+    return `
+      <g class="arch-block">
+        <rect x="${(svgW - blockW) / 2}" y="${y}" width="${blockW}" height="${blockH}" rx="${rx}" fill="${bgColor}" stroke="${borderColor}" stroke-width="1.5" ${dashArr} opacity="0.9"/>
+        <text x="${svgW/2}" y="${y + blockH/2 + 1}" text-anchor="middle" dominant-baseline="central" fill="#e2e8f0" font-family="'Satoshi', sans-serif" font-size="${fontS}" font-weight="${fontW}">${comp}</text>
+      </g>`;
+  });
+
+  // Arrows between blocks
+  let arrows = '';
+  for (let i = 0; i < comps.length - 1; i++) {
+    const y1 = startY + i * (blockH + gap) + blockH;
+    const y2 = startY + (i + 1) * (blockH + gap);
+    if (y2 > y1) {
+      const midY = (y1 + y2) / 2;
+      arrows += `<line x1="${svgW/2}" y1="${y1 + 1}" x2="${svgW/2}" y2="${y2 - 1}" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+    }
+  }
+
+  return `<svg viewBox="0 0 ${svgW} ${totalH}" width="${svgW}" height="${totalH}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glow-${model.id}">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    ${arrows}
+    ${blocks.join('')}
+  </svg>`;
+}
+
+// ==================== MODAL ====================
+function openModal(id) {
+  const m = models.find(x => x.id === id);
+  if (!m) return;
+
+  const detailEntries = Object.entries(m.details);
+  const prettyLabels = {
+    layers: 'Layers', heads: 'Attention Heads', dModel: 'Model Dimension',
+    context: 'Context Length', vocab: 'Vocabulary', normalization: 'Normalization',
+    activation: 'Activation', posEncoding: 'Position Encoding'
+  };
+
+  document.getElementById('modalContent').innerHTML = `
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal-header">
+      <div class="modal-model-name" style="background:linear-gradient(135deg,${m.color1},${m.color2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${m.name}</div>
+      <div class="modal-meta">
+        <span class="modal-meta-item">${m.company}</span>
+        <span class="modal-meta-item">&bull; ${m.year}</span>
+        <span class="modal-meta-item">&bull; ${m.params} params</span>
+        <span class="modal-meta-item">&bull; ${m.familyLabel}</span>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Key Innovation</h3>
+      <p style="color:var(--color-text-muted);line-height:1.6;">${m.innovation}</p>
+      <div class="card-tags" style="margin-top:var(--space-3);">
+        ${m.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Architecture Details</h3>
+      <div class="modal-detail-grid">
+        ${detailEntries.map(([key, val]) => `
+          <div class="modal-detail">
+            <div class="modal-detail-label">${prettyLabels[key] || key}</div>
+            <div class="modal-detail-value">${val}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Architecture Diagram</h3>
+      <div class="arch-diagram">
+        ${generateArchDiagram(m)}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ==================== TIMELINE ====================
+function renderTimeline() {
+  const sorted = [...models].sort((a, b) => a.year - b.year);
+  const container = document.getElementById('timelineContainer');
+
+  container.innerHTML = `
+    <div class="timeline-line"></div>
+    <div class="timeline-items">
+      ${sorted.map((m, i) => `
+        <div class="timeline-item">
+          <div class="timeline-card" onclick="openModal('${m.id}')">
+            <div class="timeline-card-name" style="background:linear-gradient(135deg,${m.color1},${m.color2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${m.name}</div>
+            <div class="timeline-card-meta">${m.company} &bull; ${m.params} params &bull; ${m.familyLabel}</div>
+            <div class="timeline-card-innovation">${m.innovation}</div>
+          </div>
+          <div class="timeline-dot" title="${m.name} (${m.year})" onclick="openModal('${m.id}')"></div>
+          <div class="timeline-year-label">${m.year}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ==================== INIT ====================
+renderCards();
+renderCompareSlots();
+</script>
+</body>
+</html>
